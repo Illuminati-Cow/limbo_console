@@ -572,10 +572,34 @@ func _build_gui() -> void:
 	_output = RichTextLabel.new()
 	_output.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_output.scroll_active = true
-	_output.scroll_following = true
+	_output.scroll_following = false # To implement custom scroll following behavior
 	_output.bbcode_enabled = true
 	_output.focus_mode = Control.FOCUS_CLICK
 	vbox.add_child(_output)
+
+	# To allow user to pause scrolling, we need to track the scroll bar ourselves
+	var scroll_bar: VScrollBar = _output.get_v_scroll_bar()
+	var scroll_history: Dictionary = {
+		"last_value": 1.0,
+		"last_height": scroll_bar.max_value - scroll_bar.page,
+		"correction_queued": false,
+	}
+	var correct_scroll := func() -> void:
+		scroll_history["correction_queued"] = false
+		scroll_history["last_height"] = scroll_bar.max_value - scroll_bar.page
+		if scroll_history["last_value"] == 1.0:
+			scroll_bar.value = scroll_bar.max_value
+	scroll_bar.value_changed.connect(func(value):
+		# Scroll bar height changes multiple times on printing new lines
+		var current_height := scroll_bar.max_value - scroll_bar.page
+		if current_height != scroll_history["last_height"]:
+			if not scroll_history["correction_queued"]:
+				scroll_history["correction_queued"] = true
+				correct_scroll.call_deferred()
+		else:
+			# Scroll bar is done moving from prints, so it must have been moved by user. Thus, we update the last value
+			scroll_history["last_value"] = scroll_bar.value / (scroll_bar.max_value - scroll_bar.page)
+	)
 
 	_entry = CommandEntry.new()
 	vbox.add_child(_entry)
