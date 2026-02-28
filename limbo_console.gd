@@ -438,6 +438,7 @@ func execute_script(p_file: String, p_silent: bool = true) -> void:
 			LimboConsole.execute_command(line, p_silent)
 	else:
 		LimboConsole.error("File not found: " + p_file.trim_prefix("user://"))
+	_resume_scroll_following.call_deferred()
 
 
 ## Formats the tip text (hopefully useful ;).
@@ -1096,6 +1097,7 @@ func _on_entry_text_submitted(p_command: String) -> void:
 		_clear_autocomplete()
 		_fill_entry("")
 		execute_command(p_command)
+		_resume_scroll_following.call_deferred()
 		_update_autocomplete()
 
 
