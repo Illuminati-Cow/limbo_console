@@ -599,7 +599,10 @@ func _build_gui() -> void:
 				correct_scroll.call_deferred()
 		else:
 			# Scroll bar is done moving from prints, so it must have been moved by user. Thus, we update the last value
-			scroll_history["last_value"] = scroll_bar.value / (scroll_bar.max_value - scroll_bar.page)
+			if scroll_bar.max_value - scroll_bar.page > 0:
+				scroll_history["last_value"] = scroll_bar.value / (scroll_bar.max_value - scroll_bar.page)
+			else:
+				scroll_history["last_value"] = 1.0
 	)
 
 	_entry = CommandEntry.new()
