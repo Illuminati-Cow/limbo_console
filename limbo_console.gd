@@ -588,7 +588,7 @@ func _build_gui() -> void:
 		scroll_history["correction_queued"] = false
 		scroll_history["last_height"] = scroll_bar.max_value - scroll_bar.page
 		if scroll_history["last_value"] == 1.0:
-			scroll_bar.value = scroll_bar.max_value
+			_resume_scroll_following()
 	scroll_bar.value_changed.connect(func(value):
 		# Scroll bar height changes multiple times on printing new lines
 		var current_height := scroll_bar.max_value - scroll_bar.page
@@ -1105,3 +1105,10 @@ func _on_entry_text_changed() -> void:
 		_update_autocomplete()
 	else:
 		_history_iter.reset()
+
+
+## Resumes the scroll following behavior. Should generally be called using
+## call_deferred as the scroll bar does not update immediately.
+func _resume_scroll_following() -> void:
+	var scroll_bar: VScrollBar = _output.get_v_scroll_bar()
+	scroll_bar.value = scroll_bar.max_value
